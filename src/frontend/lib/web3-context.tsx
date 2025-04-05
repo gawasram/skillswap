@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import * as ethers from "ethers";
 import { toast } from "@/components/ui/use-toast";
+import { getContractsInstance, SkillSwapContracts } from "./contracts";
 
 // Define types
 export type WalletStatus = "disconnected" | "connecting" | "connected" | "error";
@@ -88,6 +89,7 @@ interface Web3ContextType {
   provider: ethers.providers.Web3Provider | null;
   signer: ethers.Signer | null;
   transactions: Transaction[];
+  contracts: SkillSwapContracts | null;
   
   connectWallet: () => Promise<string | void>;
   disconnectWallet: () => Promise<void>;
@@ -106,6 +108,7 @@ const Web3Context = createContext<Web3ContextType>({
   provider: null,
   signer: null,
   transactions: [],
+  contracts: null,
   
   connectWallet: async () => {},
   disconnectWallet: async () => {},
@@ -125,20 +128,110 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  
+  // New state for contracts
+  const [contracts, setContracts] = useState<SkillSwapContracts | null>(null);
 
-  // Update balance function
-  const updateBalance = useCallback(async () => {
-    if (provider && walletAddress) {
-      try {
-        const balance = await provider.getBalance(walletAddress);
-        const formattedBalance = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
-        const networkInfo = NETWORKS[chainId || 1];
-        setWalletBalance(`${formattedBalance} ${networkInfo.currency}`);
-      } catch (error) {
-        console.error("Error fetching balance:", error);
+  // Add global error handler for ENS resolution errors
+  useEffect(() => {
+    const handleUnhandledErrors = (event: ErrorEvent) => {
+      // Check if it's an ENS resolution error
+      if (event.error && event.error.message && 
+          (event.error.message.includes('does not support ENS') ||
+           event.error.message.includes('network does not support ENS'))) {
+        // Prevent the default error handling
+        event.preventDefault();
+        console.log('Caught ENS resolution error:', event.error.message);
       }
+    };
+
+    // Add global error listener
+    window.addEventListener('error', handleUnhandledErrors);
+
+    // Clean up
+    return () => {
+      window.removeEventListener('error', handleUnhandledErrors);
+    };
+  }, []);
+
+  // Update balance function - improved for large balances
+  const updateBalance = useCallback(async () => {
+    if (!window.ethereum || !walletAddress) return;
+    
+    try {
+      // Get network information for the currency symbol
+      const currentNetworkInfo = chainId ? NETWORKS[chainId] : null;
+      const currencySymbol = currentNetworkInfo ? currentNetworkInfo.currency : 'ETH';
+      
+      // Format address properly for the balance check (always use 0x format for RPC)
+      let addressForBalance = walletAddress;
+      if (addressForBalance.startsWith('xdc')) {
+        addressForBalance = '0x' + addressForBalance.slice(3);
+      }
+      
+      console.log("Fetching balance for address:", addressForBalance);
+      
+      // Direct RPC call using MetaMask's provider
+      const balanceHex = await window.ethereum.request({
+        method: 'eth_getBalance',
+        params: [addressForBalance, 'latest'],
+      });
+      
+      console.log("Raw balance hex:", balanceHex);
+      
+      try {
+        // Use BigInt for handling large numbers without precision loss
+        const balanceWei = BigInt(balanceHex);
+        console.log("Balance in wei (BigInt):", balanceWei.toString());
+        
+        // Format to string with proper decimal places
+        // To display XDC with proper decimals (18 decimals like ETH)
+        // Convert to a string first
+        const balanceWeiStr = balanceWei.toString();
+        
+        // Handle different cases for large and small balances
+        let formattedBalance;
+        if (balanceWeiStr.length <= 18) {
+          // Less than 1 XDC
+          const paddedStr = balanceWeiStr.padStart(18, '0');
+          const decimalPart = paddedStr.padStart(19, '0'); // Add one more 0 for "0."
+          formattedBalance = `0.${decimalPart.substring(1, 5)}`; // Show 4 decimal places
+        } else {
+          // More than 1 XDC
+          const wholePart = balanceWeiStr.slice(0, balanceWeiStr.length - 18);
+          const decimalPart = balanceWeiStr.slice(balanceWeiStr.length - 18).padEnd(18, '0');
+          formattedBalance = `${wholePart}.${decimalPart.substring(0, 4)}`;
+        }
+        
+        console.log("Formatted balance:", formattedBalance, currencySymbol);
+        
+        // Set the balance with correct currency
+        setWalletBalance(`${formattedBalance} ${currencySymbol}`);
+      } catch (parseError) {
+        console.error("Error parsing balance:", parseError);
+        
+        // Fallback to the previous method
+        const balanceInWei = parseInt(balanceHex, 16).toString();
+        console.log("Fallback: Balance in wei (parseInt):", balanceInWei);
+        
+        // Use ethers to format if available
+        try {
+          const formattedBalance = ethers.utils.formatEther(balanceHex);
+          const shortenedBalance = parseFloat(formattedBalance).toFixed(4);
+          setWalletBalance(`${shortenedBalance} ${currencySymbol}`);
+        } catch (ethersError) {
+          // Last resort - use basic division
+          const ethValue = parseInt(balanceInWei) / 1e18;
+          const formattedBalance = ethValue.toFixed(4);
+          setWalletBalance(`${formattedBalance} ${currencySymbol}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+      // Set a default message with correct currency
+      setWalletBalance(`0.00 ${chainId && NETWORKS[chainId] ? NETWORKS[chainId].currency : 'ETH'}`);
     }
-  }, [provider, walletAddress, chainId]);
+  }, [walletAddress, chainId]);
 
   // Initialize wallet from localStorage on mount
   useEffect(() => {
@@ -196,7 +289,6 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         // Create provider with the correct network options
-        // We'll set the network explicitly to avoid network mismatch errors
         const ethProvider = new ethers.providers.Web3Provider(window.ethereum);
         console.log("Provider created successfully for network:", currentChainId);
         
@@ -227,6 +319,19 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
           description: `Connected to ${formattedAddress.substring(0, 6)}...${formattedAddress.substring(38)}`,
         });
         
+        // After successful connection, initialize contracts
+        if (ethProvider && ethSigner) {
+          const contractsService = getContractsInstance(ethProvider, ethSigner);
+          try {
+            await contractsService.initialize();
+            setContracts(contractsService);
+            console.log("Contracts initialized successfully");
+          } catch (contractError) {
+            console.error("Failed to initialize contracts:", contractError);
+            // Continue even if contracts fail - they might not be deployed yet
+          }
+        }
+        
         return formattedAddress;
       } catch (requestError: any) {
         console.error("Error requesting accounts:", requestError);
@@ -254,6 +359,7 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     setChainId(null);
     setProvider(null);
     setSigner(null);
+    setContracts(null);
     
     // Remove from localStorage
     localStorage.removeItem("walletAddress");
@@ -306,6 +412,19 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Network changed",
           description: `Connected to ${networkInfo.name}`,
         });
+        
+        // After successful network switch, reinitialize contracts
+        if (newProvider && newSigner) {
+          const contractsService = getContractsInstance(newProvider, newSigner);
+          try {
+            await contractsService.initialize();
+            setContracts(contractsService);
+            console.log("Contracts reinitialized for new network");
+          } catch (contractError) {
+            console.error("Failed to reinitialize contracts for new network:", contractError);
+            // Continue even if contracts fail
+          }
+        }
       }
     } catch (switchError: any) {
       // This error code indicates that the chain has not been added to MetaMask
@@ -612,6 +731,7 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     provider,
     signer,
     transactions,
+    contracts,
     
     connectWallet,
     disconnectWallet,

@@ -15,6 +15,8 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 import { useEffect, useState } from "react";
+import { ContractInteraction } from "@/components/contract-interaction";
+import { ContractTest } from "@/components/contract-test";
 
 export default function WalletPage() {
   const { walletStatus, walletAddress, walletBalance, chainId, getNetworkInfo, reconnectWallet } = useWeb3();
@@ -29,6 +31,52 @@ export default function WalletPage() {
       setIsMetaMaskAvailable(!!window.ethereum);
     }
   }, []);
+  
+  // Force balance refresh when wallet page loads - but only once
+  useEffect(() => {
+    const refreshBalance = async () => {
+      if (walletStatus === "connected" && window.ethereum) {
+        try {
+          // Use a more direct approach - don't use full reconnect as it causes loops
+          if (window.ethereum) {
+            // Get current chain ID
+            const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
+            const currentChainId = parseInt(chainIdHex, 16);
+            
+            // Get address
+            const accounts = await window.ethereum.request({ method: "eth_accounts" });
+            if (accounts && accounts.length > 0) {
+              // Get balance directly
+              const address = accounts[0];
+              let balanceRequest;
+              
+              try {
+                balanceRequest = await window.ethereum.request({
+                  method: 'eth_getBalance',
+                  params: [address, 'latest'],
+                });
+                
+                // Process the balance - no need to set state as it will propagate through context
+                console.log("Balance fetched directly:", balanceRequest);
+              } catch (balanceError) {
+                console.error("Error fetching balance directly:", balanceError);
+              }
+            }
+          }
+          console.log("Wallet balance check completed");
+        } catch (error) {
+          console.error("Error refreshing wallet balance:", error);
+        }
+      }
+    };
+    
+    // Only run once on mount
+    const timer = setTimeout(() => {
+      refreshBalance();
+    }, 1000); // Small delay to ensure other components are mounted
+    
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array - only run once
   
   // Handle provider errors
   useEffect(() => {
@@ -141,7 +189,19 @@ export default function WalletPage() {
                   <CardDescription>Your current wallet balance</CardDescription>
                 </CardHeader>
                 <CardContent className="text-2xl font-bold">
-                  {walletBalance || "0.00 ETH"}
+                  {walletBalance || `0.00 ${networkInfo?.currency || 'ETH'}`}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="ml-2 h-5 w-5 opacity-70 hover:opacity-100"
+                    onClick={() => reconnectWallet()}
+                    title="Refresh Balance"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-0 scale-100 transition-all">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                      <path d="M3 3v5h5"></path>
+                    </svg>
+                  </Button>
                 </CardContent>
                 <CardFooter className="text-xs text-muted-foreground">
                   Network: {networkInfo?.name || `Chain ID ${chainId}`}
@@ -209,6 +269,16 @@ export default function WalletPage() {
                 </div>
                 <AddXdcNetwork />
               </div>
+            </div>
+            
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Test Smart Contracts</h2>
+              <ContractTest />
+            </div>
+            
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">SkillSwap Contracts</h2>
+              <ContractInteraction />
             </div>
           </>
         ) : (

@@ -68,11 +68,9 @@ export function AddXdcNetwork() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <img 
-            src="https://xinfin.org/assets/images/brand-assets/xdc-icon.png" 
-            alt="XDC Logo" 
-            className="h-6 w-6" 
-          />
+          <div className="flex items-center justify-center w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full text-white font-bold text-xs">
+            XDC
+          </div>
           XDC Network
         </CardTitle>
         <CardDescription>
