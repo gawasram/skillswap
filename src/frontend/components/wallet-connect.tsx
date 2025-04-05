@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Wallet, AlertTriangle, CheckCircle, Loader2, ExternalLink } from "lucide-react"
+import { Wallet, AlertTriangle, CheckCircle, Loader2, ExternalLink, ChevronDown, LogOut, LayoutDashboard } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,13 @@ import {
 } from "@/components/ui/dialog"
 import { useWeb3, WalletStatus, TransactionStatus, NETWORKS, ChainId } from "@/lib/web3-context"
 import { toast } from "@/components/ui/use-toast"
+import Link from "next/link"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface WalletConnectProps {
   showDetails?: boolean
@@ -217,17 +224,34 @@ export function WalletConnect({ showDetails = false }: WalletConnectProps) {
         </Button>
       ) : walletStatus === "connected" ? (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 border-primary-200 bg-primary-50 text-primary-700 hover:bg-primary-100"
-            onClick={() => disconnectWallet()}
-          >
-            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="truncate max-w-[100px]">
-              {walletAddress ? formatAddressForDisplay(walletAddress, chainId) : ''}
-            </span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 border-primary-200 bg-primary-50 text-primary-700 hover:bg-primary-100"
+              >
+                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="truncate max-w-[100px]">
+                  {walletAddress ? formatAddressForDisplay(walletAddress, chainId) : ''}
+                </span>
+                <ChevronDown className="h-4 w-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <Link href="/wallet">
+                <DropdownMenuItem className="cursor-pointer">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Wallet Dashboard</span>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem onClick={() => disconnectWallet()} className="cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Disconnect</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
           {showDetails && (
             <Button
               variant="ghost"
@@ -284,6 +308,16 @@ export function WalletConnect({ showDetails = false }: WalletConnectProps) {
                     </option>
                   ))}
                 </select>
+              </div>
+              
+              {/* Wallet Dashboard Link */}
+              <div className="flex justify-center mt-2">
+                <Link href="/wallet">
+                  <Button size="sm" className="gap-2">
+                    <LayoutDashboard className="h-4 w-4" />
+                    Open Wallet Dashboard
+                  </Button>
+                </Link>
               </div>
               
               {/* Transaction History */}
