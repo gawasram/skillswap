@@ -6,6 +6,7 @@ import { WalletConnect } from "@/components/wallet-connect"
 import { VideoSession } from "@/components/video-session"
 import { MentorshipCard } from "@/components/mentorship-card"
 import { BookOpen, Calendar, Compass, Lightbulb, Users, Sparkles, ArrowRight, CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "SkillSwap - Decentralized Skill-sharing Platform",
@@ -18,24 +19,26 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl">
-            <Lightbulb className="h-5 w-5 text-primary-600" />
-            <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-              SkillSwap
-            </span>
+            <Link href="/" className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-primary-600" />
+              <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+                SkillSwap
+              </span>
+            </Link>
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-sm font-medium hover:text-primary-600 transition-colors">
+            <Link href="/explore" className="text-sm font-medium hover:text-primary-600 transition-colors">
               Explore
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-primary-600 transition-colors">
+            </Link>
+            <Link href="/sessions" className="text-sm font-medium hover:text-primary-600 transition-colors">
               My Sessions
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-primary-600 transition-colors">
+            </Link>
+            <Link href="/mentors" className="text-sm font-medium hover:text-primary-600 transition-colors">
               Mentors
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-primary-600 transition-colors">
+            </Link>
+            <Link href="/about" className="text-sm font-medium hover:text-primary-600 transition-colors">
               About
-            </a>
+            </Link>
           </nav>
           <div className="flex items-center gap-4">
             <WalletConnect />
@@ -61,17 +64,21 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" className="bg-primary-600 hover:bg-primary-700 text-white">
-                    Find a Mentor
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-primary-200 text-primary-700 hover:bg-primary-50"
-                  >
-                    Become a Mentor
-                  </Button>
+                  <Link href="/mentors">
+                    <Button size="lg" className="bg-primary-600 hover:bg-primary-700 text-white">
+                      Find a Mentor
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/register-mentor">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-primary-200 text-primary-700 hover:bg-primary-50"
+                    >
+                      Become a Mentor
+                    </Button>
+                  </Link>
                 </div>
               </div>
               <div className="mx-auto lg:mr-0 flex items-center justify-center">
@@ -200,6 +207,14 @@ export default function HomePage() {
                 image="/placeholder.svg?height=300&width=300"
               />
             </div>
+            <div className="flex justify-center mt-8">
+              <Link href="/mentors">
+                <Button size="lg" className="bg-primary-600 hover:bg-primary-700 text-white">
+                  View All Mentors
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       </main>
@@ -209,15 +224,15 @@ export default function HomePage() {
             © 2025 <span className="font-medium text-primary-600">SkillSwap</span>. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary-600 transition-colors">
+            <Link href="/terms" className="hover:text-primary-600 transition-colors">
               Terms
-            </a>
-            <a href="#" className="hover:text-primary-600 transition-colors">
+            </Link>
+            <Link href="/privacy" className="hover:text-primary-600 transition-colors">
               Privacy
-            </a>
-            <a href="#" className="hover:text-primary-600 transition-colors">
+            </Link>
+            <Link href="/about" className="hover:text-primary-600 transition-colors">
               Contact
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

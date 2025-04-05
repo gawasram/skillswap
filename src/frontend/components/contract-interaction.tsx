@@ -476,7 +476,41 @@ export function ContractInteraction() {
                           size="sm" 
                           variant="outline" 
                           className="flex-1"
-                          onClick={() => {/* Accept session logic */}}
+                          onClick={async () => {
+                            if (!contracts) return;
+                            try {
+                              setLoading(true);
+                              const meetingLinkVal = prompt("Enter meeting link for the session:");
+                              if (!meetingLinkVal) {
+                                toast({
+                                  title: "Operation cancelled",
+                                  description: "Meeting link is required to accept a session",
+                                });
+                                setLoading(false);
+                                return;
+                              }
+                              const tx = await contracts.acceptSession(index, meetingLinkVal);
+                              toast({
+                                title: "Transaction sent",
+                                description: "Accepting session...",
+                              });
+                              await tx.wait();
+                              toast({
+                                title: "Session accepted",
+                                description: "You have accepted the session",
+                              });
+                              loadProfileAndSessions();
+                            } catch (err: any) {
+                              console.error("Error accepting session:", err);
+                              toast({
+                                title: "Accept failed",
+                                description: err.message || "Failed to accept session",
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
                         >
                           Accept
                         </Button>
@@ -484,14 +518,174 @@ export function ContractInteraction() {
                           size="sm" 
                           variant="destructive" 
                           className="flex-1"
-                          onClick={() => {/* Reject session logic */}}
+                          onClick={async () => {
+                            if (!contracts) return;
+                            try {
+                              setLoading(true);
+                              const tx = await contracts.rejectSession(index);
+                              toast({
+                                title: "Transaction sent",
+                                description: "Rejecting session...",
+                              });
+                              await tx.wait();
+                              toast({
+                                title: "Session rejected",
+                                description: "You have rejected the session",
+                              });
+                              loadProfileAndSessions();
+                            } catch (err: any) {
+                              console.error("Error rejecting session:", err);
+                              toast({
+                                title: "Reject failed",
+                                description: err.message || "Failed to reject session",
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
                         >
                           Reject
                         </Button>
                       </div>
                     )}
                     
-                    {/* Other session action buttons based on status */}
+                    {/* Session actions for mentee */}
+                    {session.status === SessionStatus.Accepted && session.mentee === walletAddress && !session.isPaid && (
+                      <div className="flex gap-2 mt-4">
+                        <Button 
+                          size="sm" 
+                          variant="default" 
+                          className="flex-1"
+                          onClick={async () => {
+                            if (!contracts) return;
+                            try {
+                              setLoading(true);
+                              const tx = await contracts.payForSession(index);
+                              toast({
+                                title: "Transaction sent",
+                                description: "Processing payment...",
+                              });
+                              await tx.wait();
+                              toast({
+                                title: "Payment successful",
+                                description: "You have paid for the session",
+                              });
+                              loadProfileAndSessions();
+                            } catch (err: any) {
+                              console.error("Error paying for session:", err);
+                              toast({
+                                title: "Payment failed",
+                                description: err.message || "Failed to pay for session",
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          Pay Now
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {/* Complete session action for mentor */}
+                    {session.status === SessionStatus.Accepted && session.mentor === walletAddress && session.isPaid && (
+                      <div className="flex gap-2 mt-4">
+                        <Button 
+                          size="sm" 
+                          variant="default" 
+                          className="flex-1"
+                          onClick={async () => {
+                            if (!contracts) return;
+                            try {
+                              setLoading(true);
+                              const tx = await contracts.completeSession(index);
+                              toast({
+                                title: "Transaction sent",
+                                description: "Completing session...",
+                              });
+                              await tx.wait();
+                              toast({
+                                title: "Session completed",
+                                description: "The session has been marked as completed",
+                              });
+                              loadProfileAndSessions();
+                            } catch (err: any) {
+                              console.error("Error completing session:", err);
+                              toast({
+                                title: "Completion failed",
+                                description: err.message || "Failed to complete session",
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          Complete Session
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {/* Rate session action for mentee */}
+                    {session.status === SessionStatus.Completed && session.mentee === walletAddress && (
+                      <div className="flex gap-2 mt-4">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={async () => {
+                            if (!contracts) return;
+                            try {
+                              const score = prompt("Rate this session (1-5):");
+                              if (!score || isNaN(parseInt(score)) || parseInt(score) < 1 || parseInt(score) > 5) {
+                                toast({
+                                  title: "Invalid rating",
+                                  description: "Please provide a rating between 1 and 5",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              
+                              const comment = prompt("Add a comment (optional):");
+                              
+                              setLoading(true);
+                              const tx = await contracts.submitRating(
+                                index,
+                                parseInt(score),
+                                comment || ""
+                              );
+                              
+                              toast({
+                                title: "Transaction sent",
+                                description: "Submitting rating...",
+                              });
+                              
+                              await tx.wait();
+                              
+                              toast({
+                                title: "Rating submitted",
+                                description: "Your rating has been submitted",
+                              });
+                              
+                              loadProfileAndSessions();
+                            } catch (err: any) {
+                              console.error("Error submitting rating:", err);
+                              toast({
+                                title: "Rating submission failed",
+                                description: err.message || "Failed to submit rating",
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          Rate Session
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}

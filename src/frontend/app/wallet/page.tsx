@@ -17,6 +17,7 @@ import {
 import { useEffect, useState } from "react";
 import { ContractInteraction } from "@/components/contract-interaction";
 import { ContractTest } from "@/components/contract-test";
+import { SessionRatingTester } from "@/components/session-rating-tester";
 
 export default function WalletPage() {
   const { walletStatus, walletAddress, walletBalance, chainId, getNetworkInfo, reconnectWallet } = useWeb3();
@@ -279,6 +280,11 @@ export default function WalletPage() {
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4">SkillSwap Contracts</h2>
               <ContractInteraction />
+            </div>
+            
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Session & Rating Testing</h2>
+              <SessionRatingTester />
             </div>
           </>
         ) : (
