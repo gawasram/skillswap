@@ -1,130 +1,84 @@
-# SkillSwap 🤝
+# SkillSwap Platform
 
-A decentralized skill-sharing and mentorship platform powered by blockchain technology.
+A decentralized peer-to-peer skill sharing and mentorship marketplace built on XDC Network.
 
 ## Overview
 
-SkillSwap is an innovative platform that connects learners with mentors, facilitating knowledge exchange through tokenized mentorship sessions. Using blockchain technology, we ensure transparent, secure, and rewarding learning experiences for both mentors and mentees.
+SkillSwap connects skilled mentors with mentees looking to learn new skills through one-on-one sessions. All transactions are secured using blockchain technology on the XDC Network.
 
 ## Features
 
-- 🔄 Smart contract-based skill matching
-- 💎 Token-based mentorship sessions
-- 📊 Reputation system for mentors
-- 📝 Interactive learning paths
-- 🎯 Skill verification system
-- 📅 Automated scheduling
-- 💬 Real-time video sessions
-- 🏆 Achievement tracking
+- Decentralized mentorship marketplace
+- Secure payment system using ROXN tokens
+- Reputation and ratings system
+- Video session integration (coming soon)
+- Mobile app support (coming soon)
 
 ## Project Structure
 
-```
-skillswap/
-├── src/
-│   ├── frontend/          # React web application
-│   ├── backend/          # Node.js/Express backend
-│   ├── contracts/        # Solidity smart contracts
-│   └── mobile_app/       # React Native mobile app
-├── docs/                 # Documentation
-├── tests/               # Test suites
-└── package.json         # Project dependencies
-```
+- **Smart Contracts**: [/src/contracts](/src/contracts)
+- **Backend**: [/src/backend](/src/backend)
+- **Frontend**: [/src/frontend](/src/frontend)
+- **Mobile App**: [/src/mobile_app](/src/mobile_app)
+- **Documentation**: [/docs](/docs)
 
-## Technology Stack
+## Documentation
 
-### Frontend & Mobile
-- React.js with TypeScript
-- React Native for mobile
-- TailwindCSS for styling
-- Redux Toolkit for state management
-- ethers.js for blockchain interaction
+- [Smart Contract Documentation](/docs/contracts)
+- [API Documentation](/docs/api)
+- [User Guide](/docs/user-guide)
+- [Developer Guide](/docs/developer-guide)
 
-### Backend
-- Node.js/Express
-- MongoDB for main database
-- Redis for caching
-- JWT for authentication
-- WebRTC for video sessions
-
-### Blockchain
-- Solidity for smart contracts
-- Hardhat for development
-- OpenZeppelin for contract standards
-- IPFS for decentralized storage
-
-## Getting Started
+## Development Setup
 
 ### Prerequisites
+
 - Node.js 18+
-- MongoDB 6+
-- Redis
-- MetaMask wallet
+- npm or yarn
+- Hardhat
+- MetaMask or other Web3 wallet
 
 ### Installation
 
-1. Clone the repository:
 ```bash
+# Clone the repository
 git clone https://github.com/Roxonn-FutureTech/skillswap.git
 cd skillswap
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
+
+# Compile smart contracts
+cd src/contracts
+npx hardhat compile
 ```
 
-3. Install frontend dependencies:
-```bash
-cd src/frontend
-npm install
-```
+### Running the DApp Locally
 
-4. Install mobile app dependencies:
 ```bash
-cd ../mobile_app
-npm install
-```
-
-5. Set up environment variables:
-```bash
-cp .env.example .env
-```
-
-6. Start development servers:
-```bash
-# Backend
+# Start the backend
 cd src/backend
-npm run dev
-
-# Frontend
-cd ../frontend
 npm start
 
-# Mobile App
-cd ../mobile_app
+# In a new terminal, start the frontend
+cd src/frontend
 npm start
-
-# Smart Contract Development
-cd ../contracts
-npx hardhat node
 ```
+
+## Deployed Contracts (XDC Apothem Testnet)
+
+| Contract | Address |
+|----------|---------|
+| MentorshipToken | 0x3bc607852393dcc75a3fccf0deb1699001d32bbd |
+| MentorRegistry | 0xcfa935f28fff8f33ee08d6fdeed91b66aff6236e |
+| SessionManager | 0xa976da47324dbb47e5bea23e8a4f3a369b42fe88 |
+| ReputationSystem | 0x74996f530fe88776d2ecef1fe301e523c55b61e5 |
+| SkillSwapMain | 0x242f1c5ad353cb06034265dcbe943f816a0ba756 |
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to contribute to this project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-- Website: [roxonn.com](https://roxonn.com)
-- GitHub: [@Roxonn-FutureTech](https://github.com/Roxonn-FutureTech) 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
