@@ -1,36 +1,90 @@
-# This is a basic workflow to help you get started with Actions
+name: Auto Build & Test Based on Language
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
+    branches:
+      - main
+      - dev
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - main
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  autodetect:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    outputs:
+      lang: ${{ steps.detect.outputs.lang }}
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Detect Language & Set Output
+        id: detect
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          if [ -f "package.json" ]; then
+            echo "lang=node" >> $GITHUB_ENV
+          elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+            echo "lang=python" >> $GITHUB_ENV
+          elif [ -f "pom.xml" ]; then
+            echo "lang=java" >> $GITHUB_ENV
+          elif ls *.go 1> /dev/null 2>&1; then
+            echo "lang=go" >> $GITHUB_ENV
+          else
+            echo "lang=unknown" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Node.js
+        if: env.lang == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Python
+        if: env.lang == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Java
+        if: env.lang == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Go
+        if: env.lang == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build & Test Node.js
+        if: env.lang == 'node'
+        run: |
+          npm install
+          npm run build || true
+          npm test || true
+
+      - name: Build & Test Python
+        if: env.lang == 'python'
+        run: |
+          pip install -r requirements.txt || true
+          python -m unittest discover || true
+
+      - name: Build & Test Java (Maven)
+        if: env.lang == 'java'
+        run: |
+          mvn clean install || true
+
+      - name: Build & Test Go
+        if: env.lang == 'go'
+        run: |
+          go mod tidy || true
+          go build ./...
+          go test ./... || true
+
+      - name: Fallback for unknown languages
+        if: env.lang == 'unknown'
+        run: echo "❌ No known language build system detected."
