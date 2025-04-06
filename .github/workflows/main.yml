@@ -12,81 +12,79 @@ on:
 jobs:
   autodetect:
     runs-on: ubuntu-latest
+
+    outputs:
+      lang: ${{ steps.detect.outputs.lang }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Detect Language & Set Up
+      - name: Detect Language & Set Output
         id: detect
         run: |
           if [ -f "package.json" ]; then
-            echo "Detected Node.js"
-            echo "lang=node" >> $GITHUB_OUTPUT
+            echo "lang=node" >> $GITHUB_ENV
           elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
-            echo "Detected Python"
-            echo "lang=python" >> $GITHUB_OUTPUT
+            echo "lang=python" >> $GITHUB_ENV
           elif [ -f "pom.xml" ]; then
-            echo "Detected Java (Maven)"
-            echo "lang=java" >> $GITHUB_OUTPUT
+            echo "lang=java" >> $GITHUB_ENV
           elif ls *.go 1> /dev/null 2>&1; then
-            echo "Detected Go"
-            echo "lang=go" >> $GITHUB_OUTPUT
+            echo "lang=go" >> $GITHUB_ENV
           else
-            echo "Language not detected"
-            echo "lang=unknown" >> $GITHUB_OUTPUT
+            echo "lang=unknown" >> $GITHUB_ENV
           fi
 
       - name: Setup Node.js
-        if: steps.detect.outputs.lang == 'node'
+        if: env.lang == 'node'
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Setup Python
-        if: steps.detect.outputs.lang == 'python'
+        if: env.lang == 'python'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Setup Java
-        if: steps.detect.outputs.lang == 'java'
+        if: env.lang == 'java'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Setup Go
-        if: steps.detect.outputs.lang == 'go'
+        if: env.lang == 'go'
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
       - name: Build & Test Node.js
-        if: steps.detect.outputs.lang == 'node'
+        if: env.lang == 'node'
         run: |
           npm install
           npm run build || true
           npm test || true
 
       - name: Build & Test Python
-        if: steps.detect.outputs.lang == 'python'
+        if: env.lang == 'python'
         run: |
           pip install -r requirements.txt || true
           python -m unittest discover || true
 
       - name: Build & Test Java (Maven)
-        if: steps.detect.outputs.lang == 'java'
+        if: env.lang == 'java'
         run: |
           mvn clean install || true
 
       - name: Build & Test Go
-        if: steps.detect.outputs.lang == 'go'
+        if: env.lang == 'go'
         run: |
           go mod tidy || true
           go build ./...
           go test ./... || true
 
       - name: Fallback for unknown languages
-        if: steps.detect.outputs.lang == 'unknown'
+        if: env.lang == 'unknown'
         run: echo "❌ No known language build system detected."
-
