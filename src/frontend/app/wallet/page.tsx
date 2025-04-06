@@ -18,12 +18,14 @@ import { useEffect, useState } from "react";
 import { ContractInteraction } from "@/components/contract-interaction";
 import { ContractTest } from "@/components/contract-test";
 import { SessionRatingTester } from "@/components/session-rating-tester";
+import React from "react";
 
 export default function WalletPage() {
   const { walletStatus, walletAddress, walletBalance, chainId, getNetworkInfo, reconnectWallet } = useWeb3();
   const networkInfo = getNetworkInfo();
   const [isMetaMaskAvailable, setIsMetaMaskAvailable] = useState<boolean | null>(null);
   const [networkError, setNetworkError] = useState<string | null>(null);
+  const hasRefreshedBalance = React.useRef(false);
   
   // Check if MetaMask is available
   useEffect(() => {
@@ -36,48 +38,27 @@ export default function WalletPage() {
   // Force balance refresh when wallet page loads - but only once
   useEffect(() => {
     const refreshBalance = async () => {
-      if (walletStatus === "connected" && window.ethereum) {
+      if (walletStatus === "connected" && window.ethereum && !hasRefreshedBalance.current) {
         try {
-          // Use a more direct approach - don't use full reconnect as it causes loops
-          if (window.ethereum) {
-            // Get current chain ID
-            const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
-            const currentChainId = parseInt(chainIdHex, 16);
-            
-            // Get address
-            const accounts = await window.ethereum.request({ method: "eth_accounts" });
-            if (accounts && accounts.length > 0) {
-              // Get balance directly
-              const address = accounts[0];
-              let balanceRequest;
-              
-              try {
-                balanceRequest = await window.ethereum.request({
-                  method: 'eth_getBalance',
-                  params: [address, 'latest'],
-                });
-                
-                // Process the balance - no need to set state as it will propagate through context
-                console.log("Balance fetched directly:", balanceRequest);
-              } catch (balanceError) {
-                console.error("Error fetching balance directly:", balanceError);
-              }
-            }
-          }
-          console.log("Wallet balance check completed");
+          hasRefreshedBalance.current = true; // Mark as refreshed to prevent loops
+          await reconnectWallet();
+          console.log("Wallet balance refreshed successfully");
         } catch (error) {
           console.error("Error refreshing wallet balance:", error);
+          hasRefreshedBalance.current = false; // Reset on error to allow retry
         }
       }
     };
     
-    // Only run once on mount
-    const timer = setTimeout(() => {
+    // Run once when component mounts and wallet is connected
+    if (walletStatus === "connected" && !hasRefreshedBalance.current) {
       refreshBalance();
-    }, 1000); // Small delay to ensure other components are mounted
+    }
     
-    return () => clearTimeout(timer);
-  }, []); // Empty dependency array - only run once
+    return () => {
+      // No need to reset the ref on unmount as it will be garbage collected with the component
+    };
+  }, [walletStatus, reconnectWallet]);
   
   // Handle provider errors
   useEffect(() => {
