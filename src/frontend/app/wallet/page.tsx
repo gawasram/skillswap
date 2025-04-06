@@ -37,28 +37,35 @@ export default function WalletPage() {
   
   // Force balance refresh when wallet page loads - but only once
   useEffect(() => {
+    // Only run this effect once when the wallet is connected
+    if (walletStatus !== "connected" || !window.ethereum) return;
+    
+    // We'll use the existing hasRefreshedBalance ref that's already defined at component level
+    if (hasRefreshedBalance.current) return;
+    
     const refreshBalance = async () => {
-      if (walletStatus === "connected" && window.ethereum && !hasRefreshedBalance.current) {
-        try {
-          hasRefreshedBalance.current = true; // Mark as refreshed to prevent loops
-          await reconnectWallet();
-          console.log("Wallet balance refreshed successfully");
-        } catch (error) {
-          console.error("Error refreshing wallet balance:", error);
-          hasRefreshedBalance.current = false; // Reset on error to allow retry
-        }
+      try {
+        // Mark as refreshed first to prevent loops
+        hasRefreshedBalance.current = true;
+        
+        // Use reconnectWallet to update the balance in the context
+        await reconnectWallet();
+        
+        console.log("Wallet balance refreshed via reconnect");
+      } catch (error) {
+        console.error("Error refreshing wallet balance:", error);
+        // Reset the flag on error to allow retry
+        hasRefreshedBalance.current = false;
       }
     };
     
-    // Run once when component mounts and wallet is connected
-    if (walletStatus === "connected" && !hasRefreshedBalance.current) {
+    // Run the refresh with a small delay to ensure everything is initialized
+    const timer = setTimeout(() => {
       refreshBalance();
-    }
+    }, 1000);
     
-    return () => {
-      // No need to reset the ref on unmount as it will be garbage collected with the component
-    };
-  }, [walletStatus, reconnectWallet]);
+    return () => clearTimeout(timer);
+  }, [walletStatus]); // Only depend on walletStatus to prevent dependency loops
   
   // Handle provider errors
   useEffect(() => {
