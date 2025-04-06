@@ -3,24 +3,20 @@ name: Auto Build & Test Based on Language
 on:
   push:
     branches:
-      - main
-      - dev
+      - '**'
   pull_request:
     branches:
-      - main
+      - '**'
 
 jobs:
   autodetect:
     runs-on: ubuntu-latest
 
-    outputs:
-      lang: ${{ steps.detect.outputs.lang }}
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Detect Language & Set Output
+      - name: Detect Language & Set Env
         id: detect
         run: |
           if [ -f "package.json" ]; then
