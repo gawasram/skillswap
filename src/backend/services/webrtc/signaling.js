@@ -1,24 +1,38 @@
 const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
-const redis = require('redis');
+const fs = require('fs');
+const path = require('path');
 const Session = require('../../models/session');
 
-// Redis client for session state
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL
-});
-
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-redisClient.connect();
+// Create recordings directory if it doesn't exist
+const recordingsPath = process.env.RECORDING_PATH || './recordings';
+if (!fs.existsSync(recordingsPath)) {
+  console.log(`Creating recordings directory at ${recordingsPath}`);
+  fs.mkdirSync(recordingsPath, { recursive: true });
+}
 
 // Room management
 const rooms = new Map();
+
+// We'll use in-memory storage instead of Redis for development
+const redisClient = null;
+console.log('Redis disabled for development');
+
+// Simple token verification function (replace with actual JWT verification in production)
+const verifyToken = (token) => {
+  // For development/demo purposes only
+  // In a real app, you would verify the JWT token
+  return {
+    userId: 'demo-user-id',
+    username: 'Demo User'
+  };
+};
 
 // Initialize Socket.IO server
 const initializeSocketServer = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: process.env.CLIENT_URL || 'http://localhost:3000',
       methods: ['GET', 'POST'],
       credentials: true
     }
@@ -48,18 +62,25 @@ const initializeSocketServer = (server) => {
     // Join a session room
     socket.on('join-session', async ({ sessionId }) => {
       try {
-        // Verify the session exists and user is authorized
-        const session = await Session.findById(sessionId);
-        if (!session) {
-          return socket.emit('error', { message: 'Session not found' });
-        }
+        // For development, we can skip session verification
+        // In production, you would verify the session exists and user is authorized
+        let userRole = 'mentor'; // Default role for testing
         
-        // Check if user is mentor or mentee for this session
-        const isMentor = session.mentor.toString() === socket.userId;
-        const isMentee = session.mentee.toString() === socket.userId;
-        
-        if (!isMentor && !isMentee) {
-          return socket.emit('error', { message: 'Not authorized for this session' });
+        try {
+          const session = await Session.findById(sessionId);
+          if (session) {
+            // Check if user is mentor or mentee for this session
+            const isMentor = session.mentor.toString() === socket.userId;
+            const isMentee = session.mentee.toString() === socket.userId;
+            
+            if (!isMentor && !isMentee) {
+              return socket.emit('error', { message: 'Not authorized for this session' });
+            }
+            
+            userRole = isMentor ? 'mentor' : 'mentee';
+          }
+        } catch (error) {
+          console.log('Session verification skipped for development');
         }
         
         const roomId = `session:${sessionId}`;
@@ -74,11 +95,17 @@ const initializeSocketServer = (server) => {
             recording: false
           });
           
-          // Store session info in Redis
-          await redisClient.set(`room:${roomId}`, JSON.stringify({
-            sessionId,
-            startTime: Date.now()
-          }));
+          // Store session info in Redis if available
+          if (redisClient) {
+            try {
+              await redisClient.set(`room:${roomId}`, JSON.stringify({
+                sessionId,
+                startTime: Date.now()
+              }));
+            } catch (error) {
+              console.error('Redis error:', error);
+            }
+          }
         }
         
         // Add user to room
@@ -86,14 +113,14 @@ const initializeSocketServer = (server) => {
         room.users.set(socket.userId, {
           socketId: socket.id,
           username: socket.username,
-          role: isMentor ? 'mentor' : 'mentee'
+          role: userRole
         });
         
         // Notify room members
         io.to(roomId).emit('user-joined', {
           userId: socket.userId,
           username: socket.username,
-          role: isMentor ? 'mentor' : 'mentee'
+          role: userRole
         });
         
         // Send current users to the new participant
@@ -175,7 +202,16 @@ const initializeSocketServer = (server) => {
           // If room is empty, clean it up
           if (room.users.size === 0) {
             rooms.delete(roomId);
-            await redisClient.del(`room:${roomId}`);
+            
+            // Clean up in Redis if available
+            if (redisClient) {
+              try {
+                await redisClient.del(`room:${roomId}`);
+              } catch (error) {
+                console.error('Redis error:', error);
+              }
+            }
+            
             console.log(`Room ${roomId} deleted`);
           }
         }

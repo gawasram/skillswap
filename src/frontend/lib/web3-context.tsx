@@ -722,6 +722,16 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Add a function to handle API errors
+  const handleApiError = (error: any) => {
+    console.error("API Error:", error);
+    toast({
+      title: "API Error",
+      description: "Could not connect to the backend server. Operating in limited functionality mode.",
+      variant: "destructive",
+    });
+  };
+
   // Prepare context value
   const contextValue: Web3ContextType = {
     walletStatus,

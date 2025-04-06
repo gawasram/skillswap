@@ -25,11 +25,8 @@ const sessionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['requested', 'accepted', 'rejected', 'completed', 'cancelled'],
+    enum: ['requested', 'accepted', 'declined', 'canceled', 'completed'],
     default: 'requested'
-  },
-  blockchainSessionId: {
-    type: String
   },
   meetingLink: {
     type: String
@@ -40,14 +37,6 @@ const sessionSchema = new mongoose.Schema({
   notes: {
     type: String
   },
-  paymentStatus: {
-    type: String,
-    enum: ['pending', 'paid', 'refunded'],
-    default: 'pending'
-  },
-  paymentTxHash: {
-    type: String
-  },
   rating: {
     type: Number,
     min: 1,
@@ -55,14 +44,14 @@ const sessionSchema = new mongoose.Schema({
   },
   feedback: {
     type: String
+  },
+  blockchainId: {
+    type: String
   }
-}, { timestamps: true });
-
-// Indexes for faster queries
-sessionSchema.index({ mentor: 1, startTime: -1 });
-sessionSchema.index({ mentee: 1, startTime: -1 });
-sessionSchema.index({ status: 1 });
-sessionSchema.index({ blockchainSessionId: 1 }, { unique: true, sparse: true });
+}, {
+  timestamps: true
+});
 
 const Session = mongoose.model('Session', sessionSchema);
-module.exports = Session; 
+
+module.exports = Session;

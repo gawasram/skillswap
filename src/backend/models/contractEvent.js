@@ -30,32 +30,23 @@ const contractEventSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  transactionIndex: {
-    type: Number,
-    required: true
-  },
   logIndex: {
     type: Number,
     required: true
   },
   args: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {}
+    type: Object,
+    required: true
   },
   timestamp: {
     type: Date,
-    required: true,
-    index: true
-  },
-  processed: {
-    type: Boolean,
-    default: false,
-    index: true
+    default: Date.now
   }
 }, { timestamps: true });
 
-// Composite index for unique event identification
+// Ensure that events are unique by their txHash and logIndex
 contractEventSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
 
 const ContractEvent = mongoose.model('ContractEvent', contractEventSchema);
+
 module.exports = ContractEvent; 

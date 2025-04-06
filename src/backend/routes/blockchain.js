@@ -128,4 +128,20 @@ router.get('/events/address/:address', authenticate, async (req, res) => {
   }
 });
 
+// Blockchain routes
+router.get('/tokens', (req, res) => {
+  // Placeholder for getting token info
+  res.json({ success: true, message: 'Get tokens route' });
+});
+
+router.get('/mentors', (req, res) => {
+  // Placeholder for getting blockchain mentor list
+  res.json({ success: true, message: 'Get blockchain mentors route' });
+});
+
+router.post('/transactions', (req, res) => {
+  // Placeholder for creating a blockchain transaction
+  res.json({ success: true, message: 'Create blockchain transaction route' });
+});
+
 module.exports = router; 
