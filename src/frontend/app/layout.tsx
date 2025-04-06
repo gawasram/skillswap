@@ -22,81 +22,68 @@ import { useState, useEffect } from "react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 
-function Navigation({ className }: { className?: string }) {
-  const [isMobileView, setIsMobileView] = useState(false)
-  
-  // Handle client-side rendering
-  useEffect(() => {
-    const mql = window.matchMedia("(max-width: 767px)")
-    const onChange = () => {
-      setIsMobileView(mql.matches)
-    }
-    
-    setIsMobileView(mql.matches)
-    mql.addEventListener("change", onChange)
-    
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
-  
-  if (isMobileView) {
-    return (
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[250px] sm:w-[300px]">
-          <div className="flex flex-col gap-4 py-4">
-            <Link 
-              href="/" 
-              className="flex items-center gap-2 font-bold text-xl px-4"
-            >
-              <Lightbulb className="h-5 w-5 text-primary-600" />
-              <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-                SkillSwap
-              </span>
-            </Link>
-            
-            <nav className="flex flex-col gap-1 px-2">
-              <Link 
-                href="/explore" 
-                className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-              >
-                Explore
-              </Link>
-              <Link 
-                href="/sessions" 
-                className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-              >
-                My Sessions
-              </Link>
-              <Link 
-                href="/mentors" 
-                className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-              >
-                Mentors
-              </Link>
-              <Link 
-                href="/about" 
-                className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-              >
-                About
-              </Link>
-            </nav>
-            
-            <div className="px-4 mt-4">
-              <WalletConnect />
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-    )
-  }
-  
+// Mobile Navigation Component
+function MobileNavigation() {
   return (
-    <NavigationMenu className={className}>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[250px] sm:w-[300px]">
+        <div className="flex flex-col gap-4 py-4">
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 font-bold text-xl px-4"
+          >
+            <Lightbulb className="h-5 w-5 text-primary-600" />
+            <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+              SkillSwap
+            </span>
+          </Link>
+          
+          <nav className="flex flex-col gap-1 px-2">
+            <Link 
+              href="/explore" 
+              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+            >
+              Explore
+            </Link>
+            <Link 
+              href="/sessions" 
+              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+            >
+              My Sessions
+            </Link>
+            <Link 
+              href="/mentors" 
+              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+            >
+              Mentors
+            </Link>
+            <Link 
+              href="/about" 
+              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+            >
+              About
+            </Link>
+          </nav>
+          
+          <div className="px-4 mt-4">
+            <WalletConnect />
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// Desktop Navigation Component
+function DesktopNavigation() {
+  return (
+    <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
           <Link href="/explore" legacyBehavior passHref>
@@ -136,6 +123,18 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [isMobile, setIsMobile] = useState(false)
+  
+  // Detect mobile on client side
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -148,36 +147,51 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Web3Provider>
-            {/* Navigation Bar with Radix UI Navigation Menu */}
+            {/* Navigation Bar */}
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container h-16 flex items-center justify-between">
-                {/* Mobile burger menu - only visible on mobile */}
-                <div className="md:hidden">
-                  <Navigation />
-                </div>
+              <div className="container mx-auto px-4 h-16 flex items-center">
                 
-                {/* Left side: Logo and desktop navigation */}
-                <div className="flex items-center gap-4">
-                  {/* Logo - visible on all screens */}
-                  <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-                    <Lightbulb className="h-5 w-5 text-primary-600" />
-                    <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-                      SkillSwap
-                    </span>
-                  </Link>
-                  
-                  {/* Desktop navigation - only visible on desktop */}
-                  <div className="hidden md:block ml-6">
-                    <Navigation />
-                  </div>
-                </div>
-
-                {/* Right side: Wallet Connect */}
-                <div className="flex items-center">
-                  <div className="hidden md:block">
-                    <WalletConnect />
-                  </div>
-                </div>
+                {/* Mobile View */}
+                {isMobile ? (
+                  <>
+                    <div className="flex-1 flex justify-start">
+                      <MobileNavigation />
+                    </div>
+                    <div className="flex-1 flex justify-center">
+                      <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+                        <Lightbulb className="h-5 w-5 text-primary-600" />
+                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+                          SkillSwap
+                        </span>
+                      </Link>
+                    </div>
+                    <div className="flex-1"></div>
+                  </>
+                ) : (
+                  /* Desktop View */
+                  <>
+                    {/* Left: Logo */}
+                    <div className="flex-shrink-0 mr-8">
+                      <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+                        <Lightbulb className="h-5 w-5 text-primary-600" />
+                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+                          SkillSwap
+                        </span>
+                      </Link>
+                    </div>
+                    
+                    {/* Middle: Navigation */}
+                    <div className="flex-grow flex justify-start">
+                      <DesktopNavigation />
+                    </div>
+                    
+                    {/* Right: Wallet */}
+                    <div className="flex-shrink-0">
+                      <WalletConnect />
+                    </div>
+                  </>
+                )}
+                
               </div>
             </header>
             
