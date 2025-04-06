@@ -2,17 +2,19 @@
   "name": "skillswap",
   "version": "1.0.0",
   "description": "A decentralized skill-sharing and mentorship platform",
-  "main": "src/backend/index.js",
+  "main": "backend/index.js",
   "scripts": {
-    "start": "node src/backend/index.js",
-    "dev": "nodemon src/backend/index.js",
+    "start": "node backend/index.js",
+    "dev": "nodemon backend/index.js",
     "test": "hardhat test",
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "frontend": "cd src/frontend && npm start",
-    "mobile": "cd src/mobile_app && npm start"
+    "frontend": "cd frontend && npm start",
+    "mobile": "cd mobile_app && npm start",
+    "build": "cd frontend && npm run build",
+    "vercel-build": "cd frontend && npm install --legacy-peer-deps && npm run build"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
