@@ -42,123 +42,154 @@ export default function RootLayout({
           name="description"
           content="A decentralized skill-sharing and mentorship platform powered by blockchain technology"
         />
+        <style>{`
+          @media (min-width: 768px) {
+            .desktop-header {
+              display: flex !important;
+              align-items: center;
+              justify-content: space-between;
+              height: 64px;
+              width: 100%;
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 0 16px;
+            }
+            
+            .desktop-nav-container {
+              display: flex;
+              align-items: center;
+            }
+            
+            .desktop-logo {
+              margin-right: 48px;
+              white-space: nowrap;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-weight: bold;
+              font-size: 20px;
+            }
+            
+            .desktop-nav {
+              display: flex;
+              margin-left: 48px;
+            }
+            
+            .desktop-nav-link {
+              padding: 8px 12px;
+              margin-right: 24px;
+              font-size: 14px;
+              font-weight: 500;
+              transition: color 0.2s;
+            }
+            
+            .desktop-nav-link:hover {
+              color: #6366f1;
+            }
+          }
+        `}</style>
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Web3Provider>
             {/* Header */}
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container mx-auto px-4 h-16">
-                {isMobile ? (
-                  // Mobile header
-                  <div className="flex items-center justify-between h-full">
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <Menu className="h-5 w-5" />
-                        </Button>
-                      </SheetTrigger>
-                      <SheetContent side="left" className="w-[280px]">
-                        <div className="flex flex-col gap-4 py-4">
+              {isMobile ? (
+                // Mobile header
+                <div className="flex items-center justify-between h-16 container mx-auto px-4">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Menu className="h-5 w-5" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-[280px]">
+                      <div className="flex flex-col gap-4 py-4">
+                        <Link 
+                          href="/" 
+                          className="flex items-center gap-2 font-bold text-xl px-4"
+                        >
+                          <Lightbulb className="h-5 w-5 text-primary-600" />
+                          <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+                            SkillSwap
+                          </span>
+                        </Link>
+                        
+                        <nav className="flex flex-col gap-1 px-2">
                           <Link 
-                            href="/" 
-                            className="flex items-center gap-2 font-bold text-xl px-4"
+                            href="/explore" 
+                            className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
                           >
-                            <Lightbulb className="h-5 w-5 text-primary-600" />
-                            <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-                              SkillSwap
-                            </span>
+                            Explore
                           </Link>
-                          
-                          <nav className="flex flex-col gap-1 px-2">
-                            <Link 
-                              href="/explore" 
-                              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-                            >
-                              Explore
-                            </Link>
-                            <Link 
-                              href="/sessions" 
-                              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-                            >
-                              My Sessions
-                            </Link>
-                            <Link 
-                              href="/mentors" 
-                              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-                            >
-                              Mentors
-                            </Link>
-                            <Link 
-                              href="/about" 
-                              className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
-                            >
-                              About
-                            </Link>
-                          </nav>
-                          
-                          <div className="px-4 mt-4">
-                            <WalletConnect />
-                          </div>
+                          <Link 
+                            href="/sessions" 
+                            className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+                          >
+                            My Sessions
+                          </Link>
+                          <Link 
+                            href="/mentors" 
+                            className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+                          >
+                            Mentors
+                          </Link>
+                          <Link 
+                            href="/about" 
+                            className="flex items-center h-10 px-4 py-2 text-sm rounded-md hover:bg-accent"
+                          >
+                            About
+                          </Link>
+                        </nav>
+                        
+                        <div className="px-4 mt-4">
+                          <WalletConnect />
                         </div>
-                      </SheetContent>
-                    </Sheet>
-                    
-                    <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                  
+                  <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+                    <Lightbulb className="h-5 w-5 text-primary-600" />
+                    <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+                      SkillSwap
+                    </span>
+                  </Link>
+                  
+                  <div></div> {/* Empty div for flex spacing */}
+                </div>
+              ) : (
+                // Desktop header - using pure HTML with explicit styling
+                <div className="desktop-header" style={{ display: 'flex' }}>
+                  <div className="desktop-nav-container">
+                    <Link href="/" className="desktop-logo">
                       <Lightbulb className="h-5 w-5 text-primary-600" />
                       <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
                         SkillSwap
                       </span>
                     </Link>
                     
-                    <div></div> {/* Empty div for flex spacing */}
-                  </div>
-                ) : (
-                  // Desktop header
-                  <div className="flex items-center justify-between h-full">
-                    <div className="flex items-center space-x-12">
-                      {/* Logo */}
-                      <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-                        <Lightbulb className="h-5 w-5 text-primary-600" />
-                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-                          SkillSwap
-                        </span>
+                    <div className="desktop-nav">
+                      <Link href="/explore" className="desktop-nav-link">
+                        Explore
                       </Link>
-                      
-                      {/* Navigation links */}
-                      <nav className="flex items-center space-x-6">
-                        <Link 
-                          href="/explore" 
-                          className="text-sm font-medium hover:text-primary-600 transition-colors"
-                        >
-                          Explore
-                        </Link>
-                        <Link 
-                          href="/sessions" 
-                          className="text-sm font-medium hover:text-primary-600 transition-colors"
-                        >
-                          My Sessions
-                        </Link>
-                        <Link 
-                          href="/mentors" 
-                          className="text-sm font-medium hover:text-primary-600 transition-colors"
-                        >
-                          Mentors
-                        </Link>
-                        <Link 
-                          href="/about" 
-                          className="text-sm font-medium hover:text-primary-600 transition-colors"
-                        >
-                          About
-                        </Link>
-                      </nav>
+                      <Link href="/sessions" className="desktop-nav-link">
+                        My Sessions
+                      </Link>
+                      <Link href="/mentors" className="desktop-nav-link">
+                        Mentors
+                      </Link>
+                      <Link href="/about" className="desktop-nav-link">
+                        About
+                      </Link>
                     </div>
-                    
-                    {/* Wallet connect */}
+                  </div>
+                  
+                  <div>
                     <WalletConnect />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </header>
             
             {/* Main content */}
