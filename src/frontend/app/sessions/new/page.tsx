@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWeb3 } from "@/lib/web3-context";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { AlertCircle, Calendar, CheckCircle, Clock, DollarSign, UserPlus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSearchParams } from "next/navigation";
@@ -14,7 +14,8 @@ import type { MentorProfile } from "@/lib/contracts";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-export default function NewSessionPage() {
+// Create a client component that uses useSearchParams
+function SessionFormWithParams() {
   const { walletStatus, contracts, walletAddress } = useWeb3();
   const searchParams = useSearchParams();
   const mentorParam = searchParams.get("mentor");
@@ -419,6 +420,18 @@ export default function NewSessionPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+}
+
+// Main page component
+export default function NewSessionPage() {
+  return (
+    <div>
+      <h1>Create New Session</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <SessionFormWithParams />
+      </Suspense>
     </div>
   );
 } 
