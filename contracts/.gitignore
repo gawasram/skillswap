@@ -1,0 +1,51 @@
+# Dependency directories
+node_modules/
+node_modules*
+
+# Hardhat artifacts and cache
+artifacts/
+cache/
+typechain/
+typechain-types/
+
+# Environment variables and secrets
+.env
+.env.*
+.secret
+
+# IDE & OS specific files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+*.swp
+*.swo
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+coverage.json
+.coverage/
+
+# Compiled output by various tools
+dist/
+build/
+bin/
+
+# Ignition deployment files
+.ignition/deployments/
+.ignition/metadata/
+
+# Flattened contracts
+flattened/
+*_flat.sol
+
+# Local development chain data
+deployments/localhost/

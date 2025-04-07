@@ -1,0 +1,95 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Testing
+/coverage/
+.nyc_output/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Backend build
+/build/
+/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Database files
+*.sqlite
+*.db
+
+# Media files
+/src/backend/recordings/
+uploads/
+
+# IDE/Editor folders
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+Icon?
+
+# Package manager cache
+.npm/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Vercel
+.vercel/
+
+# Turborepo
+.turbo
+
+# TypeScript cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Optional: Cache and history files
+.eslintcache
+.node_repl_history
+
+# Socket.io logs
+socket.io-logs/
+
+# Specific to this project
+# Add any custom ignore patterns here
+
+# Keep the recordings directory, but not its contents
+!src/backend/recordings/.gitkeep 

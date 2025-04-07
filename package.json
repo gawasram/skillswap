@@ -2,34 +2,39 @@
   "name": "skillswap",
   "version": "1.0.0",
   "description": "A decentralized skill-sharing and mentorship platform",
-  "main": "src/backend/index.js",
+  "main": "backend/index.js",
   "scripts": {
-    "start": "node src/backend/index.js",
-    "dev": "nodemon src/backend/index.js",
+    "start": "node backend/index.js",
+    "dev": "nodemon backend/index.js",
     "test": "hardhat test",
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "frontend": "cd src/frontend && npm start",
-    "mobile": "cd src/mobile_app && npm start"
+    "frontend": "cd frontend && npm start",
+    "mobile": "cd mobile_app && npm start",
+    "build": "cd frontend && npm run build",
+    "vercel-build": "cd frontend && npm install --legacy-peer-deps && npm run build"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
     "@reduxjs/toolkit": "^2.0.0",
-    "express": "^4.18.2",
-    "mongoose": "^8.0.0",
-    "redis": "^4.6.10",
-    "jsonwebtoken": "^9.0.2",
+    "@types/uuid": "^10.0.0",
     "ethers": "^6.8.0",
-    "socket.io": "^4.7.2",
-    "web3": "^4.2.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-native": "0.72.6",
     "react-redux": "^8.1.3",
+    "redis": "^4.6.10",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "tailwindcss": "^3.3.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "uuid": "^11.1.0",
+    "web3": "^4.2.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
@@ -62,4 +67,4 @@
   ],
   "author": "Roxonn-FutureTech",
   "license": "MIT"
-} 
+}
