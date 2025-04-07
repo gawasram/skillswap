@@ -10,6 +10,9 @@ const logger = require('./config/logger');
 const { scheduleBackups } = require('./services/database/backup');
 const { migrate } = require('./services/database/migration');
 
+// Import monitoring system
+const monitoring = require('./monitoring');
+
 // Load environment variables
 loadEnv();
 const config = getConfig();
@@ -29,6 +32,27 @@ const app = express();
 const server = http.createServer(app);
 const PORT = config.port;
 
+// Initialize monitoring system with Sentry and logging
+// Must be before other middleware for proper request tracking
+monitoring.initializeMonitoring(app, {
+  // Configure based on environment
+  sentry: process.env.SENTRY_DSN ? true : false,
+  alerts: process.env.ENABLE_ALERTS === 'true',
+  performanceMonitoring: true,
+  statusMonitorConfig: {
+    // Restrict status page access in production
+    authorization: {
+      enable: process.env.NODE_ENV === 'production',
+      users: [
+        {
+          username: process.env.STATUS_PAGE_USERNAME || 'admin',
+          password: process.env.STATUS_PAGE_PASSWORD || 'admin'
+        }
+      ]
+    }
+  }
+});
+
 // Initialize WebRTC signaling
 const io = initializeSocketServer(server);
 
@@ -47,7 +71,7 @@ const initializeServices = async () => {
     // Run database migrations
     const migrationResult = await migrate();
     if (migrationResult.applied > 0) {
-      logger.info(`Applied ${migrationResult.applied} database migrations`);
+      monitoring.logger.info(`Applied ${migrationResult.applied} database migrations`);
     }
     
     // Schedule automated backups
@@ -82,38 +106,40 @@ app.get('/api/webrtc/info', (req, res) => {
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  logger.error(`Error: ${err.message}`);
-  logger.debug(err.stack);
-  
-  res.status(500).json({ 
-    success: false, 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
+// Setup error handling middleware
+// This should be after all routes are defined
+monitoring.setupErrorHandlers(app);
 
 // Start the server
 server.listen(PORT, async () => {
-  logger.info(`Server running in ${config.env} mode on port ${PORT}`);
+  monitoring.logger.info(`Server running in ${config.env} mode on port ${PORT}`, {
+    port: PORT,
+    env: config.env,
+    nodeVersion: process.version
+  });
+  
   await initializeServices();
+  
+  // Log application startup with all routes (for documentation)
+  if (app._router && app._router.stack) {
+    monitoring.logger.logAppStartup(app, PORT);
+  }
 });
 
 // Handle shutdown gracefully
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM received. Shutting down gracefully...');
+  monitoring.logger.info('SIGTERM received. Shutting down gracefully...');
   server.close(async () => {
-    logger.info('Server closed.');
+    monitoring.logger.info('Server closed.');
     await disconnectDB();
     process.exit(0);
   });
 });
 
 process.on('SIGINT', () => {
-  logger.info('SIGINT received. Shutting down gracefully...');
+  monitoring.logger.info('SIGINT received. Shutting down gracefully...');
   server.close(async () => {
-    logger.info('Server closed.');
+    monitoring.logger.info('Server closed.');
     await disconnectDB();
     process.exit(0);
   });

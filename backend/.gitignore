@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!monitoring/config.sample.env
 .secrets.json
 .encryption-key
 
