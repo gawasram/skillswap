@@ -1,16 +1,13 @@
-# Dependencies
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-
-# Environment variables
+# Environment variables and secrets
 .env
-.env.local
-.env.development
-.env.test
-.env.production
-.env.*.local
+.env.*
+!.env.example
+.secrets.json
+.encryption-key
+
+# Dependency directories
+node_modules/
+jspm_packages/
 
 # Logs
 logs/
@@ -18,6 +15,13 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+
+# Backup directories
+backups/
+
+# MongoDB data
+data/
 
 # Runtime data
 pids
@@ -25,32 +29,63 @@ pids
 *.seed
 *.pid.lock
 
-# Test coverage
+# Coverage directory used by tools like istanbul
 coverage/
-.nyc_output/
+*.lcov
 
-# Build artifacts
+# nyc test coverage
+.nyc_output
+
+# Compiled output
 dist/
 build/
+out/
+
+# TypeScript cache
 *.tsbuildinfo
 
-# IDE files
+# IDE and editor folders
 .idea/
 .vscode/
-*.sublime-project
-*.sublime-workspace
-.DS_Store
-.directory
-.Trash-*
 *.swp
 *.swo
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Recordings from WebRTC
+# Debug files
+.node_repl_history
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Optional npm cache directory
+.npm
+
+# Optional yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Temporary folders
+tmp/
+temp/
+
+# Session recordings
 recordings/
 
 # Redis dump files
 dump.rdb
 
-# Temporary files
-tmp/
-temp/ 
+# IDE files
+*.sublime-project
+*.sublime-workspace
+.directory
+.Trash-* 
