@@ -24,7 +24,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install  # Change this command as per your project
+        run: npm install --legacy-peer-deps  # Using legacy-peer-deps to resolve React/React Native conflicts
 
       - name: Run build
         run: npm run build  # Modify for your project's build process
