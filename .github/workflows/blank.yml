@@ -3,43 +3,32 @@ name: Auto Build & Test Based on Language
 on:
   push:
     branches:
-      - main
-      - dev
+      - '**'
   pull_request:
     branches:
-      - main
+      - '**'
 
 jobs:
   autodetect:
     runs-on: ubuntu-latest
 
-    outputs:
-      lang: ${{ steps.detect.outputs.lang }}
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Detect Language & Set Output
+      - name: Detect Language & Set Env
         id: detect
         run: |
           if [ -f "package.json" ]; then
             echo "lang=node" >> $GITHUB_ENV
-            echo "lang=node" >> $GITHUB_ENV
-            echo "lang=node" >> $GITHUB_OUTPUT
           elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
             echo "lang=python" >> $GITHUB_ENV
-            echo "lang=python" >> $GITHUB_OUTPUT
           elif [ -f "pom.xml" ]; then
             echo "lang=java" >> $GITHUB_ENV
-            echo "lang=java" >> $GITHUB_OUTPUT
           elif ls *.go 1> /dev/null 2>&1; then
             echo "lang=go" >> $GITHUB_ENV
-            echo "lang=go" >> $GITHUB_OUTPUT
           else
             echo "lang=unknown" >> $GITHUB_ENV
-            echo "lang=unknown" >> $GITHUB_OUTPUT
-
           fi
 
       - name: Setup Node.js
@@ -67,10 +56,10 @@ jobs:
         with:
           go-version: '1.21'
 
-           - name: Build & Test Node.js
+      - name: Build & Test Node.js
         if: env.lang == 'node'
         run: |
-          npm install --legacy-peer-deps
+          npm install
           npm run build || true
           npm test || true
 
