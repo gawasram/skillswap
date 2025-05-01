@@ -39,7 +39,6 @@ jobs:
           else
             echo "lang=unknown" >> $GITHUB_ENV
             echo "lang=unknown" >> $GITHUB_OUTPUT
-
           fi
 
       - name: Setup Node.js
@@ -67,7 +66,7 @@ jobs:
         with:
           go-version: '1.21'
 
-           - name: Build & Test Node.js
+      - name: Build & Test Node.js
         if: env.lang == 'node'
         run: |
           npm install --legacy-peer-deps
