@@ -1,13 +1,46 @@
 # Environment variables and secrets
 .env
 .env.*
-!.env.example
+.env.development
+.env.production
 .secrets.json
 .encryption-key
 
 # Dependency directories
 node_modules/
 jspm_packages/
+
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+pythonenv*
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+.pytype/
 
 # Logs
 logs/
