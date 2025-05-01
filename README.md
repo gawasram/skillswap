@@ -11,58 +11,92 @@ SkillSwap connects skilled mentors with mentees looking to learn new skills thro
 - Decentralized mentorship marketplace
 - Secure payment system using ROXN tokens
 - Reputation and ratings system
+- FastAPI backend with comprehensive monitoring
+- Next.js frontend with Web3 integration
+- Type-safe API integration
 - Video session integration (coming soon)
 - Mobile app support (coming soon)
 
 ## Project Structure
 
-- **Smart Contracts**: [/src/contracts](/src/contracts)
-- **Backend**: [/src/backend](/src/backend)
-- **Frontend**: [/src/frontend](/src/frontend)
-- **Mobile App**: [/src/mobile_app](/src/mobile_app)
-- **Documentation**: [/docs](/docs)
+- **Smart Contracts**: Blockchain-based contracts for secure transactions
+- **Backend**: FastAPI with MongoDB for persistence and Redis for caching
+- **Frontend**: Next.js with TypeScript and Tailwind CSS
+- **Documentation**: Comprehensive documentation and setup guides
+
+## Tech Stack
+
+### Backend
+- FastAPI for high-performance API endpoints
+- MongoDB for flexible document storage
+- Redis for caching and rate limiting
+- JWT-based authentication
+- Sentry for error tracking
+- Structured JSON logging
+- Database migrations and backup systems
+
+### Frontend
+- Next.js for server-side rendering and routing
+- TypeScript for type safety
+- Tailwind CSS with shadcn/ui components
+- Web3 wallet integration with ethers.js
+- OpenAPI-generated TypeScript client
 
 ## Documentation
 
-- [Smart Contract Documentation](/docs/contracts)
-- [API Documentation](/docs/api)
-- [User Guide](/docs/user-guide)
-- [Developer Guide](/docs/developer-guide)
+- [Backend Documentation](/backend/README.md)
+- [Frontend Web3 Guide](/frontend/README-web3.md)
+- [API Integration Guide](/frontend/API-INTEGRATION.md)
+- [Setup Instructions](/frontend/SETUP-INSTRUCTIONS.md)
 
 ## Development Setup
 
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
-- Hardhat
+- Python 3.9+
+- MongoDB 4.4+
+- Redis
 - MetaMask or other Web3 wallet
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/Roxonn-FutureTech/skillswap.git
+git clone https://github.com/your-username/skillswap.git
 cd skillswap
 
-# Install dependencies
-npm install
+# Backend setup
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-# Compile smart contracts
-cd src/contracts
-npx hardhat compile
+# Frontend setup
+cd ../frontend
+npm install
 ```
 
-### Running the DApp Locally
+### Running Locally
 
 ```bash
 # Start the backend
-cd src/backend
-npm start
+cd backend
+uvicorn main:app --reload --port 5005
 
 # In a new terminal, start the frontend
-cd src/frontend
-npm start
+cd frontend
+npm run dev
+```
+
+## API Integration
+
+The frontend connects to the backend using an OpenAPI-generated TypeScript client for type-safe API calls:
+
+```bash
+# Generate API client
+cd frontend
+npm run generate-api
 ```
 
 ## Deployed Contracts (XDC Apothem Testnet)
